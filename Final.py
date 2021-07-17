@@ -1,12 +1,16 @@
+import math
+import time
 import numpy as np
 import cv2
 import mediapipe as mp
-import time
 import keyboard
 import mouse
+import pyautogui
 
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
+
+pyautogui.FAILSAFE = False
 
 sourcefile = open('Landmarks.txt', 'w')       #### Printing landmark locations to ext file ####
 
@@ -83,6 +87,9 @@ with mp_hands.Hands(
             ylmarks[id] = lms.y*h
             zlmarks[id] = lms.z
 
+            xmouse = np.interp(xlmarks, (0, w), (0, 1920))
+            ymouse = np.interp(ylmarks, (0, h), (0, 1080))
+
             if(Flag == 1):
               ###### 1. controls for main switch ######
               if(589 <= xlmarks[8] < xlmarks[12] <= 639 and 0 < ylmarks[8] < 80 and 0 < ylmarks[12] < 80 and Main_switch == 0):
@@ -94,7 +101,6 @@ with mp_hands.Hands(
                 endtime = starttime + 60
               elif(589 <= xlmarks[8] < xlmarks[12] <= 639 and 0 < ylmarks[8] < 80 and 0 < ylmarks[12] < 80 and Main_switch == 1):
                 Main_switch = 0
-
                 Flag = 0
 
                 ## Pause time ##
@@ -109,22 +115,25 @@ with mp_hands.Hands(
                 ## Pause time ##
                 starttime = int(time.time())
                 endtime = starttime + 40
-                # # print('start', starttime)
-                # # print('end', endtime)
 
                 keyboard.press_and_release('Tab')
               ##### Edit mode end #####
 
-              ##### 3. Select object ##### [WIP]
-              if(-5 <= (xlmarks[8] - xlmarks[12]) <= 5):
-                xmouse = np.interp(xlmarks, (0, w), (0, 1920))
-                ymouse = np.interp(ylmarks, (0, h), (0, 1080))
+              ##### 3. Drag ##### [WIP]
+              if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and Main_switch == 1):
+                ######### No pause time in drag as we require a continuous input for that one #########
+                mouse.drag(pyautogui.position().x, pyautogui.position().y, xmouse[8], ymouse[8])
+                print(pyautogui.position())
+              
+              # ##### 4. Select stuff #####
+              if(math.dist((xlmarks[8], ylmarks[8]), (xlmarks[12], ylmarks[12])) <= 10 and Main_switch == 1):
+                Flag = 0
+                
+                ## Pause time ##
+                starttime = int(time.time())
+                endtime = starttime + 40
 
-                print(xmouse[8])
-                print(ymouse[8])
-
-                # mouse.drag(0, 0, xmouse, ymouse, absolute=False)
-                print('yei')
+                pyautogui.click(button='left')
               
         mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
       i += 1
