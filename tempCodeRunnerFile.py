@@ -1,1 +1,0 @@
-cv2.rectangle(image, (pt1), pt2, color)
