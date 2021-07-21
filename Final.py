@@ -173,7 +173,7 @@ with mp_hands.Hands(
     elif(Main_switch == 0):
       cv2.rectangle(image, (589, 0), (639, 80), (0,255,0))
     
-    cv2.imshow('MediaPipe Hands', image)
+    cv2.imshow('Output', image)
     
     # # # # # # # # # # # # # # # endtime = time.time()     ## runtime counter ##
     # # # # # # # # # # # # # # # print(endtime-starttime)
