@@ -47,7 +47,7 @@ Gesture list:
 
 > Please refer to this image to know the locations of the landmarks mentioned in the documentation below
 
-![Landmarks](../master/Imgs-for-documentation/hand-landmarks.png)
+![Landmarks](../master/Imgs-for-documentation/hand_landmarks.png)
 
 > 1. Enabling the master switch to start accepting inputs:
 
