@@ -35,4 +35,4 @@ python3 -m pip install xyz
 
 Open the folder containing the file named **final.py** and open the file using python.
 
-![Open file](/Imgs for documentation/Open file.png)
+![Open file](../master/Imgs for documentation/Open file.png)
