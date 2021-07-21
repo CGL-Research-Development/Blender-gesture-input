@@ -51,8 +51,8 @@ Gesture list:
 
 > 1. Enabling the master switch to start accepting inputs:
 
-To make the code start accepting gestures, move the tip of your index and middle finger of your right hand [Landmarks 8 and 12] in the green box on the top right of the screen. When the box turns red, the code is now accepting inputs from you and all the gestures will be enabled. The on/off state of the code can be checked by the color of the box in the upper right.
-Red: The code is running and selecting the red box will cause it to stop.
+To make the code start accepting gestures, move the tip of your index and middle finger of your right hand [Landmarks 8 and 12] in the green box on the top right of the screen. When the box turns red, the code is now accepting inputs from you and all the gestures will be enabled. The on/off state of the code can be checked by the color of the box in the upper right. <br>
+Red: The code is running and selecting the red box will cause it to stop. <br>
 Green: The code is currently NOT running. Move landmarks 8 and 12 in the green region to start the code.
 
 The screen will look something like this:
