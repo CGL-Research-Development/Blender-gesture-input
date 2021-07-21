@@ -7,22 +7,23 @@ import keyboard
 import mouse
 import pyautogui
 
+### Mediapipe initial
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
-pyautogui.FAILSAFE = False
+pyautogui.FAILSAFE = False                ### Setting the failsafe which terminates code as soon as mouse pointer reaches a screen corner to false
 
-Flag = 1        #### Execution state ####
-starttime = 0
-endtime = 0
-Main_switch = 0   ###turns code on or off
+### Execution state: We use this to give the small break whenever we execute commands which don't need to give output continuously like
+### pressing 'g' for example to move objects. We set the flag to 0 as soon as the code is executed and set it to 1 after a certain amount of time has passeed
+Flag = 1
+starttime, endtime = 0, 0     ### Used for counter before flag is set to 1 again
 
 ## FPS counter
 last_frame_time, current_frame_time = 0, 0
 
-index = 1   ### Master index ###
+Main_switch = 0   ### Turns code on or off: Works using the area in the upper right corner
 
-#### Lists store landmarks ####
+#### Lists store landmarks
 xlmarks = []
 ylmarks = []
 zlmarks = []
@@ -120,7 +121,6 @@ with mp_hands.Hands(
 
               ##### 2. Drag selection #####
               if(math.dist((xlmarks[8], ylmarks[8]), (xlmarks[12], ylmarks[12])) <= 7 and Main_switch == 1):
-                index = 2
                 ######### No pause time in drag as we require a continuous input for that one #########
                 mouse.drag(pyautogui.position().x, pyautogui.position().y, xmouse[9], ymouse[9])
               ######################################################################################
@@ -128,7 +128,6 @@ with mp_hands.Hands(
               ##### 3. Move mode #####
               if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and Main_switch == 1):
                 Flag = 0
-                index = 3
 
                 ## Pause time ##
                 starttime = int(time.time())
@@ -140,7 +139,6 @@ with mp_hands.Hands(
               ##### 4. Rotate mode #####
               if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[12], ylmarks[12])) <= 20 and Main_switch == 1):
                 Flag = 0
-                index = 3
 
                 ## Pause time ##
                 starttime = int(time.time())
@@ -165,6 +163,7 @@ with mp_hands.Hands(
     
     else:
       count = 0
+      Main_switch = 0
             
     cv2.putText(image, fps, (20, 120), font, 3, (10, 155, 0), 3, cv2.LINE_AA)    ## FPS counter
     cv2.rectangle(image, (0, 0), (90, 80), (255,0,0))
