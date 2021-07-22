@@ -40,8 +40,7 @@ cap = cv2.VideoCapture(0)     ### This tell the code what the index of the camer
 
 with mp_hands.Hands(
     min_detection_confidence=0.5,
-    min_tracking_confidence=0.5) as hands:    ### idk what this part really does, so I'd appreciate someone filling in the gaps. much thank
-  
+    min_tracking_confidence=0.5) as hands:    ### idk what this part really does, so I'd appreciate someone filling in the gaps. much thank  
   while cap.isOpened():
     success, image = cap.read()
     if not success:
@@ -162,14 +161,14 @@ with mp_hands.Hands(
               # # # # # # print(pyautogui.position())
             ######################################################################################
       
-      cv2.rectangle(image, (0, 0), (75, 50), (255,0,0), cv2.FILLED)       ### Space which stimulates pressing 'tab'
-    
-      if(Main_switch == 1):                                               ### To show the main switch box, the if conditions are for changing color as the state changes
-        cv2.rectangle(image, (589, 0), (639, 80), (0,0,255))
-      elif(Main_switch == 0):
-        cv2.rectangle(image, (589, 0), (639, 80), (0,255,0))
+        cv2.rectangle(image, (0, 0), (75, 50), (255,0,0), cv2.FILLED)       ### Space which stimulates pressing 'tab'
+      
+        if(Main_switch == 1):                                               ### To show the main switch box, the if conditions are for changing color as the state changes
+          cv2.rectangle(image, (589, 0), (639, 80), (0,0,255))
+        elif(Main_switch == 0):
+          cv2.rectangle(image, (589, 0), (639, 80), (0,255,0))
 
-      mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)     ### Draws the amazing looking lines and red dots you see on your hands
+        mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)     ### Draws the amazing looking lines and red dots you see on your hands
       
     # else:                                                       ### To disable the main switch in case the algo doesn't detect any hands
     #   Main_switch = 0
