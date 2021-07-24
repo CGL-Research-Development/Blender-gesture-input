@@ -1,6 +1,6 @@
 # Blender gesture input
 
-So, as the name suggests, this repo has a code which allows you to do some basic work in blender using hand gestures. It is of course limited as the gesture complexity would become too much.
+So, as the name suggests, this repo has a code which allows you to do some basic work in Blender using hand gestures. It is of course limited as the gesture complexity would become too much.
 
 First off, setting it all up. I'll include the whole abc, starting from installing the required libraries, so let's get to it.
 

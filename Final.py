@@ -25,6 +25,9 @@ last_frame_time, current_frame_time = 0, 0
 
 Main_switch = 0   ### Turns code on or off: Works using the area in the upper right corner
 
+Code_state = 1      ### Used to determine what the current state of the input is. Zoom/edit/pan etc.
+Code_substate = 1   ### Used to determine a substate, you'll understand when u see it later in the code
+
 ### Lists store landmarks
 xlmarks = []
 ylmarks = []
@@ -40,7 +43,7 @@ cap = cv2.VideoCapture(0)     ### This tell the code what the index of the camer
 
 with mp_hands.Hands(
     min_detection_confidence=0.5,
-    min_tracking_confidence=0.5) as hands:    ### idk what this part really does, so I'd appreciate someone filling in the gaps. much thank  
+    min_tracking_confidence=0.5) as hands:    ### idk how to summarize confidence, so I'd appreciate someone filling in the gaps. much thank  
   while cap.isOpened():
     success, image = cap.read()
     if not success:
@@ -52,7 +55,6 @@ with mp_hands.Hands(
     fps = 1/(current_frame_time - last_frame_time)
     last_frame_time = current_frame_time
     fps = str(int(fps))
-    font = cv2.FONT_HERSHEY_COMPLEX
     #### So to make this work, I basically take the current time when this frame is being read
     #### and subtract it from the time when the previous frame was read and take inverse of the whole thing
 
@@ -75,7 +77,39 @@ with mp_hands.Hands(
       endtime = endtime - 1
     if(endtime == starttime):
       Flag = 1
-        
+    
+    cv2.rectangle(image, (0, 0), (90, 60), (255,0,0), cv2.FILLED)       ### Space which stimulates pressing 'tab'
+      
+    if(Main_switch == 1):                                               ### To show the main switch box, the if conditions are for changing color as the state changes
+      cv2.rectangle(image, (569, 0), (639, 60), (0,0,255), cv2.FILLED)
+    elif(Main_switch == 0):
+      cv2.rectangle(image, (569, 0), (639, 60), (0,255,0), cv2.FILLED)
+
+    #### As the user selects different options, the view on the output will change
+    if(Code_state == 1):      
+      #### State 1 corresponds to zooming and panning. To see workings of each, go thru the readme on the repo
+      #### substate 1 is zoom and substate 2 is pan
+      if(Code_substate == 1):
+        ### Dividing lines
+        cv2.line(image, (129, 0), (129, 479), (0,0,0), 2)                 ## 1
+        cv2.line(image, (258, 0), (258, 479), (0,0,0), 2)                 ## 2
+        cv2.line(image, (387, 0), (387, 479), (0,0,0), 2)                 ## 3
+        cv2.line(image, (516, 0), (516, 479), (0,0,0), 2)                 ## 4
+        ### Showing text
+        cv2.putText(image, 'Zoom out', (30, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
+        cv2.putText(image, 'Zoom out [fine]', (139, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
+        cv2.putText(image, 'Idle', (310, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
+        cv2.putText(image, 'Zoom in [fine]', (397, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
+        cv2.putText(image, 'Zoom in', (546, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
+      
+      elif(Code_substate == 2):
+        ### Dividing screen
+        cv2.rectangle(image, (209, 169), (429, 319), (255, 255, 255), 2)        ## Idle
+        cv2.line(image, (69, 0), (69, 479), (255,255,255), 2)                   ## leftmost region
+        cv2.line(image, (209, 0), (209, 479), (255,255,255), 2)                 ## left region
+        cv2.line(image, (429, 0), (429, 479), (255,255,255), 2)                 ## right region
+        cv2.line(image, (569, 0), (569, 479), (255,255,255), 2)                 ## rightmost region
+
 
     if results.multi_hand_landmarks:
       for hand_landmarks in results.multi_hand_landmarks:       ### The loops here basically return the positions of each landmark indexed by ID
@@ -93,87 +127,171 @@ with mp_hands.Hands(
             #### Meanwhile some gestures like dragging mouse or moving the pointer don't have a wait time since we need them to work continuously
             
             ##### 0. controls for main switch: Move index 8 and 12 of right hand specifically in the box in the top right corner
-            if(589 <= xlmarks[8] < xlmarks[12] <= 639 and 0 < ylmarks[8] < 80 and 0 < ylmarks[12] < 80 and Main_switch == 0):
-              Main_switch = 1
+            if(569 <= xlmarks[8] < xlmarks[12] <= 639 and 0 < ylmarks[8] < 60 and 0 < ylmarks[12] < 60 and Main_switch == 0):
               Flag = 0
-
               ## Pause time
               starttime = int(time.time())
               endtime = starttime + 60
+              
+              Main_switch = 1
+              continue
             
             elif(589 <= xlmarks[8] < xlmarks[12] <= 639 and 0 < ylmarks[8] < 80 and 0 < ylmarks[12] < 80 and Main_switch == 1):
-              Main_switch = 0
               Flag = 0
-
               ## Pause time
               starttime = int(time.time())
               endtime = starttime + 60
+              
+              Main_switch = 0
             ######################################################################################
 
-            ##### 1. Edit mode: Move index 8, 12 and 16 of left hand specifically to the box in the upper left corner
+            ##### 1. Mode selection: Move index 8, 12 and 16 of left hand specifically to the box in the upper left corner
             if((0 < xlmarks[16] < xlmarks[12] < xlmarks[8] < 90) and (0 < ylmarks[8] < 80) and (0 < ylmarks[12] < 80) and (0 < ylmarks[16] < 80) and Main_switch == 1):
               Flag = 0
               
               ## Pause time ##
               starttime = int(time.time())
-              endtime = starttime + 40
+              endtime = starttime + 10
 
               keyboard.press_and_release('Tab')
             ######################################################################################
 
-            ##### 2. Drag selection: Move indices 8 and 12 close to each other and then move your hand to drag the pointer
-            if(math.dist((xlmarks[8], ylmarks[8]), (xlmarks[12], ylmarks[12])) <= 9 and Main_switch == 1):
-              ######### No pause time in drag as we require a continuous input for that one #########
-              mouse.drag(pyautogui.position().x, pyautogui.position().y, xmouse[9], ymouse[9])
+            ##### 2. Zoom/Pan mode: Make a fist to pan, any other state for panning #####
+            if(Main_switch == 1 and Code_state == 1 and xlmarks[5] < xlmarks[9] < xlmarks[13]):
+              if(ylmarks[8] > ylmarks[5] and ylmarks[12] > ylmarks[9] and ylmarks[16] > ylmarks[13] and ylmarks[20] > ylmarks[17] and Code_substate == 1):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 30
+                
+                Code_substate = 2
+                continue
+              elif(ylmarks[8] > ylmarks[5] and ylmarks[12] > ylmarks[9] and ylmarks[16] > ylmarks[13] and ylmarks[20] > ylmarks[17] and Code_substate == 2):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 30
+                
+                Code_substate = 1
+                continue
+
+              ######### 2.i) zooming #########
+              if(Code_substate == 1):
+                if(xlmarks[5] <= 129):
+                  Flag = 0
+                  starttime = int(time.time())
+                  endtime = starttime + 4
+                  mouse.wheel(-1)
+
+                elif(xlmarks[5] <= 258):
+                  Flag = 0
+                  starttime = int(time.time())
+                  endtime = starttime + 24
+                  mouse.wheel(-1)
+
+                elif(xlmarks[5] <= 387):
+                  Flag = 0
+                  starttime = int(time.time())
+                  endtime = starttime
+
+                elif(xlmarks[5] <= 516):
+                  Flag = 0
+                  starttime = int(time.time())
+                  endtime = starttime + 24
+                  mouse.wheel(1)
+
+                elif(xlmarks[5] <= 639):
+                  Flag = 0
+                  starttime = int(time.time())
+                  endtime = starttime + 4
+                  mouse.wheel(1)
+              #########################################
+
+              ######### 2.ii) panning #########
+              elif(Code_substate == 2):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 4
+
+                if(xlmarks[5] <= 69):
+                  pyautogui.keyDown('ctrl')
+                  pyautogui.press('num4')
+                  pyautogui.press('num4')
+                  pyautogui.press('num4')
+                  pyautogui.keyUp('ctrl')
+                elif(xlmarks[5] <= 209):
+                  pyautogui.keyDown('ctrl')
+                  pyautogui.press('num4')
+                  pyautogui.keyUp('ctrl')
+
+                if(xlmarks[5] >= 569):
+                  pyautogui.keyDown('ctrl')
+                  pyautogui.press('num6')
+                  pyautogui.press('num6')
+                  pyautogui.press('num6')
+                  pyautogui.keyUp('ctrl')
+                elif(xlmarks[5] >= 429):
+                  pyautogui.keyDown('ctrl')
+                  pyautogui.press('num6')
+                  pyautogui.keyUp('ctrl')
+
+                if(209 < xlmarks[5] < 429):
+                  if(ylmarks[5] < 169):
+                    pyautogui.keyDown('ctrl')
+                    pyautogui.press('num8')
+                    pyautogui.keyUp('ctrl')
+                  elif(ylmarks[5] > 319):
+                    pyautogui.keyDown('ctrl')
+                    pyautogui.press('num2')
+                    pyautogui.keyUp('ctrl')                    
+              #########################################
             ######################################################################################
 
-            ##### 3. Move mode: Move indices 4 and 8 close in a pinching motion, this stimulates pressing the 'g' key on the keyboard which drags objects in Blender
-            if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and Main_switch == 1):
-              Flag = 0
 
-              ## Pause time ##
-              starttime = int(time.time())
-              endtime = starttime + 40
+            # ##### 2. Drag selection: Move indices 8 and 12 close to each other and then move your hand to drag the pointer
+            # if(math.dist((xlmarks[8], ylmarks[8]), (xlmarks[12], ylmarks[12])) <= 9 and Main_switch == 1):
+            #   ######### No pause time in drag as we require a continuous input for that one #########
+            #   mouse.drag(pyautogui.position().x, pyautogui.position().y, xmouse[9], ymouse[9])
+            # ######################################################################################
 
-              keyboard.press_and_release('g')
-            ######################################################################################
+            # ##### 3. Move mode: Move indices 4 and 8 close in a pinching motion, this stimulates pressing the 'g' key on the keyboard which drags objects in Blender
+            # if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and Main_switch == 1):
+            #   Flag = 0
 
-            ##### 4. Rotate mode: Move indices 4 and 12 close, same as above, stimulates pressing 'r' which starts rotating the object
-            if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[12], ylmarks[12])) <= 20 and Main_switch == 1):
-              Flag = 0
+            #   ## Pause time ##
+            #   starttime = int(time.time())
+            #   endtime = starttime + 40
 
-              ## Pause time ##
-              starttime = int(time.time())
-              endtime = starttime + 40
+            #   keyboard.press_and_release('g')
+            # ######################################################################################
 
-              keyboard.press_and_release('r')
-            ######################################################################################
+            # ##### 4. Rotate mode: Move indices 4 and 12 close, same as above, stimulates pressing 'r' which starts rotating the object
+            # if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[12], ylmarks[12])) <= 20 and Main_switch == 1):
+            #   Flag = 0
+
+            #   ## Pause time ##
+            #   starttime = int(time.time())
+            #   endtime = starttime + 40
+
+            #   keyboard.press_and_release('r')
+            # ######################################################################################
                           
-            ##### Last-ish: Press esc: Move landmarks 4 and 20 close to stimulate pressing 'esc' key. We use this to cancel the current drag, rotation, scaling, etc. changes being done
-            if(Main_switch == 1 and math.dist((xlmarks[4], ylmarks[4]), (xlmarks[20], ylmarks[20])) <= 20):
-              keyboard.press_and_release('esc')
-            ######################################################################################
+            # ##### Last-ish: Press esc: Move landmarks 4 and 20 close to stimulate pressing 'esc' key. We use this to cancel the current drag, rotation, scaling, etc. changes being done
+            # if(Main_switch == 1 and math.dist((xlmarks[4], ylmarks[4]), (xlmarks[20], ylmarks[20])) <= 20):
+            #   keyboard.press_and_release('esc')
+            # ######################################################################################
 
-            ##### Last: Move mouse around: This simply makes the mouse pointer follow the index 9 as soon as the master switch is set to activated
-            if(Main_switch == 1):
-              ######### No pause time in move as we require a continuous input for that one #########
-              mouse.move(xmouse[9], ymouse[9])
-              # # # # # # print(pyautogui.position())
-            ######################################################################################
-      
-        cv2.rectangle(image, (0, 0), (75, 50), (255,0,0), cv2.FILLED)       ### Space which stimulates pressing 'tab'
-      
-        if(Main_switch == 1):                                               ### To show the main switch box, the if conditions are for changing color as the state changes
-          cv2.rectangle(image, (589, 0), (639, 80), (0,0,255))
-        elif(Main_switch == 0):
-          cv2.rectangle(image, (589, 0), (639, 80), (0,255,0))
+            # ##### Last: Move mouse around: This simply makes the mouse pointer follow the index 9 as soon as the master switch is set to activated
+            # if(Main_switch == 1):
+            #   ######### No pause time in move as we require a continuous input for that one #########
+            #   mouse.move(xmouse[9], ymouse[9])
+            #   # # # # # # print(pyautogui.position())
+            # ######################################################################################
 
         mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)     ### Draws the amazing looking lines and red dots you see on your hands
       
     # else:                                                       ### To disable the main switch in case the algo doesn't detect any hands
     #   Main_switch = 0
             
-    cv2.putText(image, fps, (20, 120), font, 3, (10, 155, 0), 3, cv2.LINE_AA)    ## FPS counter
+    cv2.putText(image, fps, (20, 120), cv2.FONT_HERSHEY_COMPLEX, 1.7, (10, 155, 0), 3, cv2.LINE_AA)    ## FPS counter
     
     cv2.imshow('Output', image)                                   ### A basic cv2 command which displays the output image
     if cv2.waitKey(2) & 0xFF == 27:
