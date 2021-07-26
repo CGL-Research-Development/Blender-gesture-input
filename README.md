@@ -60,5 +60,4 @@ The screen will look something like this:
 
 ***Points to note:***
 1. The master switch will only work with the right hand and using the left hand will not enable it. I have plans to enable a switch for left handed people, which is currently absent.
-2. As soon as the code stops detecting a hand on the screen, it will automatically set the Master switch to off.
 
