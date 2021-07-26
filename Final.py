@@ -25,8 +25,10 @@ last_frame_time, current_frame_time = 0, 0
 
 Main_switch = 0   ### Turns code on or off: Works using the area in the upper right corner
 
-Code_state = 1      ### Used to determine what the current state of the input is. Zoom/edit/pan etc.
-Code_substate = 1   ### Used to determine a substate, you'll understand when u see it later in the code
+Code_state = 2            ### Used to determine what the current state of the input is. Zoom/edit/pan etc.
+Code_substate = 0         ### Used to determine a substate. Basically distinguishes b/w all the options persent in one state
+### In this code for example, the default state when it runs allows the used to zoom, pan and rotate the scene, each with diff gestures
+### We use substate to distinguish b/w said 3 operations allowed in this particular state
 
 ### Lists store landmarks
 xlmarks = []
@@ -86,37 +88,73 @@ with mp_hands.Hands(
       cv2.rectangle(image, (569, 0), (639, 60), (0,255,0), cv2.FILLED)
 
     #### As the user selects different options, the view on the output will change
-    if(Code_state == 1):      
-      #### State 1 corresponds to zooming and panning. To see workings of each, go thru the readme on the repo
-      #### substate 1 is zoom and substate 2 is pan
-      if(Code_substate == 1):
+    if(Code_state == 1):
+      #### State 1 corresponds to scene control
+      #### substate 1 is zoom, substate 2 is pan and substate 3 is rotate scene
+      if(Code_substate == 0):
+        ### Header
+        cv2.putText(image, 'Idle', (280, 40), cv2.FONT_HERSHEY_DUPLEX, 0.65, (0, 255, 255), 1, cv2.LINE_AA)
+      
+      elif(Code_substate == 1):
+        ### Header
+        cv2.putText(image, 'Zooming', (280, 40), cv2.FONT_HERSHEY_DUPLEX, 0.65, (0, 255, 255), 1, cv2.LINE_AA)
         ### Dividing lines
         cv2.line(image, (129, 0), (129, 479), (0,0,0), 2)                 ## 1
         cv2.line(image, (258, 0), (258, 479), (0,0,0), 2)                 ## 2
         cv2.line(image, (387, 0), (387, 479), (0,0,0), 2)                 ## 3
         cv2.line(image, (516, 0), (516, 479), (0,0,0), 2)                 ## 4
         ### Showing text
-        cv2.putText(image, 'Zoom out', (30, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
-        cv2.putText(image, 'Zoom out [fine]', (139, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
-        cv2.putText(image, 'Idle', (310, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
-        cv2.putText(image, 'Zoom in [fine]', (397, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
-        cv2.putText(image, 'Zoom in', (546, 450), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (10, 155, 0), 1, cv2.LINE_AA)    ## FPS counter
+        cv2.putText(image, 'Zoom out', (30, 450), cv2.FONT_HERSHEY_DUPLEX, 0.47, (0, 0, 255), 1, cv2.LINE_AA)
+        cv2.putText(image, 'Zoom out [Fine]', (134, 450), cv2.FONT_HERSHEY_DUPLEX, 0.47, (0, 0, 255), 1, cv2.LINE_AA)
+        cv2.putText(image, 'Idle', (310, 450), cv2.FONT_HERSHEY_DUPLEX, 0.47, (0, 0, 255), 1, cv2.LINE_AA)
+        cv2.putText(image, 'Zoom in [Fine]', (397, 450), cv2.FONT_HERSHEY_DUPLEX, 0.47, (0, 0, 255), 1, cv2.LINE_AA)
+        cv2.putText(image, 'Zoom in', (546, 450), cv2.FONT_HERSHEY_DUPLEX, 0.47, (0, 0, 255), 1, cv2.LINE_AA)
       
       elif(Code_substate == 2):
+        ### Header
+        cv2.putText(image, 'Panning', (280, 40), cv2.FONT_HERSHEY_DUPLEX, 0.65, (0, 255, 255), 1, cv2.LINE_AA)
         ### Dividing screen
         cv2.rectangle(image, (209, 169), (429, 319), (255, 255, 255), 2)        ## Idle
         cv2.line(image, (69, 0), (69, 479), (255,255,255), 2)                   ## leftmost region
         cv2.line(image, (209, 0), (209, 479), (255,255,255), 2)                 ## left region
         cv2.line(image, (429, 0), (429, 479), (255,255,255), 2)                 ## right region
         cv2.line(image, (569, 0), (569, 479), (255,255,255), 2)                 ## rightmost region
+        ### Showing text
+        cv2.putText(image, 'Idle', (300, 250), cv2.FONT_HERSHEY_DUPLEX, 0.57, (20, 170, 0), 1, cv2.LINE_AA)
+      
+      elif(Code_substate == 3):
+        ### Header
+        cv2.putText(image, 'Rotating', (280, 40), cv2.FONT_HERSHEY_DUPLEX, 0.65, (0, 255, 255), 1, cv2.LINE_AA)
+      #########################################
+      
+    elif(Code_state == 2 or Code_state == 3):
+      #### State 2 corresponds to object mode
+      #### substate 1 is move, substate 2 is scale and substate 3 is rotate
+      if(Code_substate == 0):
+        ### Header
+        cv2.putText(image, 'Idle', (280, 40), cv2.FONT_HERSHEY_DUPLEX, 0.65, (0, 255, 255), 1, cv2.LINE_AA)
+      
+      elif(Code_substate == 1):
+        ### Header
+        cv2.putText(image, 'Scaling', (280, 40), cv2.FONT_HERSHEY_DUPLEX, 0.65, (0, 255, 255), 1, cv2.LINE_AA)
+      
+      elif(Code_substate == 2):
+        ### Header
+        cv2.putText(image, 'Moving', (280, 40), cv2.FONT_HERSHEY_DUPLEX, 0.65, (0, 255, 255), 1, cv2.LINE_AA)
+      
+      elif(Code_substate == 3):
+        ### Header
+        cv2.putText(image, 'Rotating', (280, 40), cv2.FONT_HERSHEY_DUPLEX, 0.65, (0, 255, 255), 1, cv2.LINE_AA)
+      #########################################
+    ######################################################################################
 
-
+    #### Mediapipe code
     if results.multi_hand_landmarks:
       for hand_landmarks in results.multi_hand_landmarks:       ### The loops here basically return the positions of each landmark indexed by ID
         for id, lms in enumerate(hand_landmarks.landmark):
-          xlmarks[id] = lms.x*w                                 ### Storing all the landmarks in list. The *h and *w are done to scale the obtained
-          ylmarks[id] = lms.y*h                                 ### vals of landmarks to vid input
-          zlmarks[id] = lms.z
+          xlmarks[id] = int(lms.x*w)                                 ### Storing all the landmarks in list. The *h and *w are done to scale the obtained
+          ylmarks[id] = int(lms.y*h)                                 ### vals of landmarks to vid input
+          zlmarks[id] = int(lms.z)
 
           xmouse = np.interp(xlmarks, (0, w), (0, screenW))     ### Here we interpolate the x and y landmarks from video size to user screen size
           ymouse = np.interp(ylmarks, (0, h), (0, screenH))     ### which is used when we move the mouse around
@@ -134,6 +172,7 @@ with mp_hands.Hands(
               endtime = starttime + 60
               
               Main_switch = 1
+              Code_substate = 0
               continue
             
             elif(589 <= xlmarks[8] < xlmarks[12] <= 639 and 0 < ylmarks[8] < 80 and 0 < ylmarks[12] < 80 and Main_switch == 1):
@@ -153,26 +192,57 @@ with mp_hands.Hands(
               starttime = int(time.time())
               endtime = starttime + 10
 
-              keyboard.press_and_release('Tab')
+              Code_state = 0
+              Code_substate = 0
             ######################################################################################
 
-            ##### 2. Zoom/Pan mode: Make a fist to pan, any other state for panning #####
+            ##### 2. Zoom/Pan/Rotate mode: Touch tip of thumb and index finger to start zooming, make a fist once to start panning, take thumb to tip of middle finger to start rotating
             if(Main_switch == 1 and Code_state == 1 and xlmarks[5] < xlmarks[9] < xlmarks[13]):
-              if(ylmarks[8] > ylmarks[5] and ylmarks[12] > ylmarks[9] and ylmarks[16] > ylmarks[13] and ylmarks[20] > ylmarks[17] and Code_substate == 1):
+              ######### 2.i) zooming #########
+              if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and (Code_substate == 0 or Code_substate == 2 or Code_substate == 3)):
                 Flag = 0
                 starttime = int(time.time())
-                endtime = starttime + 30
+                endtime = starttime + 20
+                
+                Code_substate = 1
+                continue
+              elif(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and Code_substate == 1):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
+                
+                Code_substate = 0
+                continue
+              ######### 2.ii) panning #########
+              elif(ylmarks[8] > ylmarks[5] and ylmarks[12] > ylmarks[9] and ylmarks[16] > ylmarks[13] and ylmarks[20] > ylmarks[17] and (Code_substate == 0 or Code_substate == 1 or Code_substate == 3)):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
                 
                 Code_substate = 2
                 continue
               elif(ylmarks[8] > ylmarks[5] and ylmarks[12] > ylmarks[9] and ylmarks[16] > ylmarks[13] and ylmarks[20] > ylmarks[17] and Code_substate == 2):
                 Flag = 0
                 starttime = int(time.time())
-                endtime = starttime + 30
+                endtime = starttime + 20
                 
-                Code_substate = 1
+                Code_substate = 0
                 continue
-
+              ######### 2.iii) rotating #########
+              elif(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[12], ylmarks[12])) <= 20 and (Code_substate == 0 or Code_substate == 1 or Code_substate == 2)):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
+                
+                Code_substate = 3
+                continue
+              elif(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[12], ylmarks[12])) <= 20 and Code_substate == 3):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
+                
+                Code_substate = 0
+                continue
               ######### 2.i) zooming #########
               if(Code_substate == 1):
                 if(xlmarks[5] <= 129):
@@ -203,8 +273,6 @@ with mp_hands.Hands(
                   starttime = int(time.time())
                   endtime = starttime + 4
                   mouse.wheel(1)
-              #########################################
-
               ######### 2.ii) panning #########
               elif(Code_substate == 2):
                 Flag = 0
@@ -241,56 +309,97 @@ with mp_hands.Hands(
                   elif(ylmarks[5] > 319):
                     pyautogui.keyDown('ctrl')
                     pyautogui.press('num2')
-                    pyautogui.keyUp('ctrl')                    
-              #########################################
+                    pyautogui.keyUp('ctrl')
+              ######### 2.iii) rotating #########
+              elif(Code_substate == 3):
+                ######### No pause time in rotate as we are moving mouse and don't want a lag #########
+                mouse.hold('middle')
+                mouse.move(xmouse[5], ymouse[5])
+                mouse.release('middle')
             ######################################################################################
 
 
-            # ##### 2. Drag selection: Move indices 8 and 12 close to each other and then move your hand to drag the pointer
-            # if(math.dist((xlmarks[8], ylmarks[8]), (xlmarks[12], ylmarks[12])) <= 9 and Main_switch == 1):
-            #   ######### No pause time in drag as we require a continuous input for that one #########
-            #   mouse.drag(pyautogui.position().x, pyautogui.position().y, xmouse[9], ymouse[9])
-            # ######################################################################################
+            ##### 2 & 3. Object mode and Edit mode respectively:
+            ##### Touch tip of thumb and index finger to start Scaling, make a fist once to start moving, take thumb to tip of middle finger to start rotating
+            ##### To click on an object, touch tip of thumb to ring finger, and to cancel placement (i.e., press 'esc' key. touch tip of thumb and pinky)
+            elif(Main_switch == 1 and (Code_state == 2 or Code_state == 3) and xlmarks[5] < xlmarks[9] < xlmarks[13]):
+              ######### 2,3.i) scaling #########
+              if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and (Code_substate == 0 or Code_substate == 2 or Code_substate == 3)):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
+                
+                Code_substate = 1
+                keyboard.press_and_release('s')
+                continue
+              elif(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and Code_substate == 1):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
+                
+                Code_substate = 0
+                mouse.click('left')
+                continue
+              ######### 2,3.ii) moving #########
+              elif(ylmarks[8] > ylmarks[5] and ylmarks[12] > ylmarks[9] and ylmarks[16] > ylmarks[13] and ylmarks[20] > ylmarks[17] and (Code_substate == 0 or Code_substate == 1 or Code_substate == 3)):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
+                
+                Code_substate = 2
+                keyboard.press_and_release('g')
+                continue
+              elif(ylmarks[8] > ylmarks[5] and ylmarks[12] > ylmarks[9] and ylmarks[16] > ylmarks[13] and ylmarks[20] > ylmarks[17] and Code_substate == 2):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
+                
+                Code_substate = 0
+                mouse.click('left')
+                continue
+              ######### 2,3.iii) rotating #########
+              elif(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[12], ylmarks[12])) <= 20 and (Code_substate == 0 or Code_substate == 1 or Code_substate == 2)):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
+                
+                Code_substate = 3
+                keyboard.press_and_release('r')
+                keyboard.press_and_release('r')
+                continue
+              elif(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[12], ylmarks[12])) <= 20 and Code_substate == 3):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 20
+                
+                Code_substate = 0
+                mouse.click('left')
+                continue
+              #########################################
+              mouse.move(xmouse[5], ymouse[5])
+              ######### 2,3.0) mouse click holding down shift #########
+              if(Code_substate == 0 and math.dist((xlmarks[4], ylmarks[4]), (xlmarks[16], ylmarks[16])) <= 20):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 10
 
-            # ##### 3. Move mode: Move indices 4 and 8 close in a pinching motion, this stimulates pressing the 'g' key on the keyboard which drags objects in Blender
-            # if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and Main_switch == 1):
-            #   Flag = 0
+                keyboard.press('shift')
+                mouse.click('left')
+                keyboard.release('shift')
+              ######### 2,3.iv) press esc to cancel operation #########
+              if((Code_substate == 1 or Code_substate == 2 or Code_substate == 3) and math.dist((xlmarks[4], ylmarks[4]), (xlmarks[20], ylmarks[20])) <= 20):
+                Flag = 0
+                starttime = int(time.time())
+                endtime = starttime + 10
 
-            #   ## Pause time ##
-            #   starttime = int(time.time())
-            #   endtime = starttime + 40
+                keyboard.press_and_release('esc')
+                cv2.putText(image, 'CANCELLED', (280, 270), cv2.FONT_HERSHEY_DUPLEX, 2, (0, 0, 255), 1, cv2.LINE_AA)
+            ######################################################################################
 
-            #   keyboard.press_and_release('g')
-            # ######################################################################################
-
-            # ##### 4. Rotate mode: Move indices 4 and 12 close, same as above, stimulates pressing 'r' which starts rotating the object
-            # if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[12], ylmarks[12])) <= 20 and Main_switch == 1):
-            #   Flag = 0
-
-            #   ## Pause time ##
-            #   starttime = int(time.time())
-            #   endtime = starttime + 40
-
-            #   keyboard.press_and_release('r')
-            # ######################################################################################
-                          
-            # ##### Last-ish: Press esc: Move landmarks 4 and 20 close to stimulate pressing 'esc' key. We use this to cancel the current drag, rotation, scaling, etc. changes being done
-            # if(Main_switch == 1 and math.dist((xlmarks[4], ylmarks[4]), (xlmarks[20], ylmarks[20])) <= 20):
-            #   keyboard.press_and_release('esc')
-            # ######################################################################################
-
-            # ##### Last: Move mouse around: This simply makes the mouse pointer follow the index 9 as soon as the master switch is set to activated
-            # if(Main_switch == 1):
-            #   ######### No pause time in move as we require a continuous input for that one #########
-            #   mouse.move(xmouse[9], ymouse[9])
-            #   # # # # # # print(pyautogui.position())
-            # ######################################################################################
 
         mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)     ### Draws the amazing looking lines and red dots you see on your hands
-      
-    # else:                                                       ### To disable the main switch in case the algo doesn't detect any hands
-    #   Main_switch = 0
-            
+        cv2.circle(image, (xlmarks[5], ylmarks[5]), 10, (255, 0, 255), -1)              ### Draw a circle on landmark 5 to let users know it is being used for tracking
+
     cv2.putText(image, fps, (20, 120), cv2.FONT_HERSHEY_COMPLEX, 1.7, (10, 155, 0), 3, cv2.LINE_AA)    ## FPS counter
     
     cv2.imshow('Output', image)                                   ### A basic cv2 command which displays the output image
