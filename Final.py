@@ -25,7 +25,7 @@ last_frame_time, current_frame_time = 0, 0
 
 Main_switch = 0   ### Turns code on or off: Works using the area in the upper right corner
 
-Code_state = 1            ### Used to determine what the current state of the input is. Zoom/edit/pan etc.
+Code_state = 0            ### Used to determine what the current state of the input is. Zoom/edit/pan etc.
 Code_substate = 0         ### Used to determine a substate. Basically distinguishes b/w all the options persent in one state
 ### In this code for example, the default state when it runs allows the user to zoom, pan and rotate the scene, each with diff gestures
 ### We use substate to distinguish b/w said 3 operations allowed in this particular state
@@ -236,7 +236,7 @@ with mp_hands.Hands(
                 keyboard.press_and_release('tab')
             ######################################################################################
 
-            ##### 1. Zoom/Pan/Rotate mode: Touch tip of thumb and index finger to start zooming, make a fist once to start panning, take thumb to tip of middle finger to start rotating
+            ##### 1. Scene navi mode: Touch tip of thumb and index finger to start zooming, make a fist once to start panning, take thumb to tip of middle finger to start rotating
             if(Main_switch == 1 and Code_state == 1 and xlmarks[5] < xlmarks[9] < xlmarks[13]):
               ######### 1.i) zooming #########
               if(math.dist((xlmarks[4], ylmarks[4]), (xlmarks[8], ylmarks[8])) <= 20 and Code_substate == 0):
