@@ -48,7 +48,7 @@ Second most common error, caused when either you camera index is wrong, or the p
 ```py
 cap = cv2.VideoCapture(0)
 ```
-and change the camera index. If this doesn't work, check to see if your camera drivers are properly installed and that your camera works properly. The best way to check is to open the windows camera app and seeing if it throws and error.
+> and change the camera index. If this doesn't work, check to see if your camera drivers are properly installed and that your camera works properly. The best way to check is to open the windows camera app and seeing if it throws and error.
 The error will looks something like this:
 
 ![Camera issue](../master/Imgs-for-documentation/Cam-index-error.png)
